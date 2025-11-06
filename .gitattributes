@@ -1,0 +1,6 @@
+# Force GitHub Linguist to count YAML files as code
+*.yaml linguist-language=YAML
+*.yml linguist-language=YAML
+*.json linguist-language=JSON
+*.dockerfile linguist-language=Dockerfile
+
