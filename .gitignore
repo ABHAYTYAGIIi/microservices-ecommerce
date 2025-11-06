@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# Env files (contains secrets)
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backup or temp files
+*.bak
+*.tmp
+

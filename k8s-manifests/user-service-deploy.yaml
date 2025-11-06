@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: user-service
+      annotations:
+        # Prometheus annotations for automatic metrics scraping
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4001"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: user-service
+          image: abhaytyagi1219/user-service:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4001
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-cm
+                  key: MONGO_URL
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-root-username
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secret
+                  key: mongo-root-password
+
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 4001
+            initialDelaySeconds: 6
+            periodSeconds: 8
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4001
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+

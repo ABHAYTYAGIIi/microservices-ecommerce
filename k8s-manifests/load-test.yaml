@@ -1,0 +1,27 @@
+# user-service-loadtest-deploy.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-loadtest
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service-loadtest
+  template:
+    metadata:
+      labels:
+        app: user-service-loadtest
+    spec:
+      containers:
+      - name: hey
+        image: ricoli/hey
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              hey -z 30s -c 30 -q 5 http://user-service:4001/api/users
+              sleep 10
+            done
+

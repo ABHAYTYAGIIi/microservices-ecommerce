@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: monitoring-ingress
+  namespace: monitoring
+  annotations:
+    # Use NGINX as the ingress controller
+    kubernetes.io/ingress.class: "nginx"
+
+    # Clean URL handling
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+    # Optional: increase timeouts for Grafana/Prometheus dashboards
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
+    # Optional: allow large responses (useful for Prometheus)
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  rules:
+    # -------------------------------
+    # Grafana - UI Dashboard
+    # -------------------------------
+    - host: grafana.ecommerce.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 80
+
+    # -------------------------------
+    # Prometheus - Metrics Dashboard
+    # -------------------------------
+    - host: prometheus.ecommerce.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus-server
+                port:
+                  number: 80
+
